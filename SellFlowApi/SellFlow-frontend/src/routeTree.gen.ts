@@ -11,14 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as SetupRouteImport } from './routes/setup'
 import { Route as AppCustomersRouteImport } from './routes/_app/customers'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppOrdersRouteImport } from './routes/_app/orders'
 import { Route as AppPaymentsRouteImport } from './routes/_app/payments'
 import { Route as AppProductsRouteImport } from './routes/_app/products'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
+import { Route as AppWhatsappRouteImport } from './routes/_app/whatsapp'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,14 +31,19 @@ const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
+const SetupRoute = SetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppCustomersRoute = AppCustomersRouteImport.update({
@@ -69,84 +76,102 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
+const AppWhatsappRoute = AppWhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/demo': typeof DemoRoute
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
+  '/setup': typeof SetupRoute
   '/customers': typeof AppCustomersRoute
   '/dashboard': typeof AppDashboardRoute
   '/orders': typeof AppOrdersRoute
   '/payments': typeof AppPaymentsRoute
   '/products': typeof AppProductsRoute
   '/settings': typeof AppSettingsRoute
+  '/whatsapp': typeof AppWhatsappRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/demo': typeof DemoRoute
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
+  '/setup': typeof SetupRoute
   '/customers': typeof AppCustomersRoute
   '/dashboard': typeof AppDashboardRoute
   '/orders': typeof AppOrdersRoute
   '/payments': typeof AppPaymentsRoute
   '/products': typeof AppProductsRoute
   '/settings': typeof AppSettingsRoute
+  '/whatsapp': typeof AppWhatsappRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
+  '/demo': typeof DemoRoute
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
+  '/setup': typeof SetupRoute
   '/_app/customers': typeof AppCustomersRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/orders': typeof AppOrdersRoute
   '/_app/payments': typeof AppPaymentsRoute
   '/_app/products': typeof AppProductsRoute
   '/_app/settings': typeof AppSettingsRoute
+  '/_app/whatsapp': typeof AppWhatsappRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/demo'
     | '/login'
-    | '/onboarding'
+    | '/setup'
     | '/customers'
     | '/dashboard'
     | '/orders'
     | '/payments'
     | '/products'
     | '/settings'
+    | '/whatsapp'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/demo'
     | '/login'
-    | '/onboarding'
+    | '/setup'
     | '/customers'
     | '/dashboard'
     | '/orders'
     | '/payments'
     | '/products'
     | '/settings'
+    | '/whatsapp'
   id:
     | '__root__'
     | '/'
     | '/_app'
+    | '/demo'
     | '/login'
-    | '/onboarding'
+    | '/setup'
     | '/_app/customers'
     | '/_app/dashboard'
     | '/_app/orders'
     | '/_app/payments'
     | '/_app/products'
     | '/_app/settings'
+    | '/_app/whatsapp'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  DemoRoute: typeof DemoRoute
   LoginRoute: typeof LoginRoute
-  OnboardingRoute: typeof OnboardingRoute
+  SetupRoute: typeof SetupRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -165,6 +190,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -172,11 +204,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
+    '/setup': {
+      id: '/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof SetupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/customers': {
@@ -221,6 +253,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/whatsapp': {
+      id: '/_app/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/whatsapp'
+      preLoaderRoute: typeof AppWhatsappRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -231,6 +270,7 @@ interface AppRouteChildren {
   AppPaymentsRoute: typeof AppPaymentsRoute
   AppProductsRoute: typeof AppProductsRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppWhatsappRoute: typeof AppWhatsappRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -240,6 +280,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPaymentsRoute: AppPaymentsRoute,
   AppProductsRoute: AppProductsRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppWhatsappRoute: AppWhatsappRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -247,8 +288,9 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  DemoRoute: DemoRoute,
   LoginRoute: LoginRoute,
-  OnboardingRoute: OnboardingRoute,
+  SetupRoute: SetupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

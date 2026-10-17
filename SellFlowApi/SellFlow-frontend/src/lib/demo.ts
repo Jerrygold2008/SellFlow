@@ -1,6 +1,6 @@
 import type { Business, Category, Customer, Order, Payment, Product } from "./types";
 
-// Sample data used when no API address is configured (preview / demo mode).
+// Sample data for the public /demo page.
 const iso = (hoursAgo: number) => new Date(Date.now() - hoursAgo * 3600_000).toISOString();
 
 export function makeDemo() {

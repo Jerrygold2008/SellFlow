@@ -1,17 +1,19 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { MessageCircle, CheckCircle2, Server } from "lucide-react";
+import { MessageCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api, storage } from "@/lib/api";
+import { noindex } from "@/lib/seo";
 
 export const Route = createFileRoute("/login")({
   component: Login,
   head: () => ({
     meta: [
       { title: "Sign in — SellFlow" },
+      noindex,
       { name: "description", content: "Sign in to your SellFlow store dashboard." },
       { property: "og:title", content: "Sign in — SellFlow" },
       { property: "og:description", content: "Sign in to your SellFlow store dashboard." },
@@ -22,19 +24,18 @@ export const Route = createFileRoute("/login")({
 function Login() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"login" | "register">("login");
-  const [apiUrl, setApiUrl] = useState("");
   const [f, setF] = useState({ firstName: "", lastName: "", email: "", password: "" });
   const [busy, setBusy] = useState(false);
-  useEffect(() => setApiUrl(storage.apiUrl()), []);
+  // Already signed in? The setup page sends you to the right place.
+  useEffect(() => { if (storage.token()) navigate({ to: "/setup", replace: true }); }, [navigate]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    storage.setApiUrl(apiUrl.trim());
     setBusy(true);
     try {
       const res = mode === "login" ? await api.login(f.email, f.password) : await api.register(f);
-      storage.setSession(res.token, res.email);
-      navigate({ to: res.businessId ? "/dashboard" : "/onboarding" });
+      storage.setSession(res.token, res.email, !!res.businessId);
+      navigate({ to: "/setup" });
     } catch (err) {
       toast.error((err as Error).message || "Could not reach the server.");
     } finally { setBusy(false); }
@@ -69,12 +70,7 @@ function Login() {
             </div>
           )}
           <div className="space-y-1.5"><Label>Email</Label><Input type="email" required value={f.email} onChange={set("email")} /></div>
-          <div className="space-y-1.5"><Label>Password</Label><Input type="password" required minLength={6} value={f.password} onChange={set("password")} /></div>
-          <div className="space-y-1.5 rounded-lg border bg-muted/50 p-3">
-            <Label className="flex items-center gap-1.5 text-xs"><Server className="size-3.5" /> API address</Label>
-            <Input placeholder="https://api.yourstore.com" value={apiUrl} onChange={(e) => setApiUrl(e.target.value)} className="bg-card" />
-            <p className="text-xs text-muted-foreground">Leave empty to explore with sample data.</p>
-          </div>
+          <div className="space-y-1.5"><Label>Password</Label><Input type="password" required minLength={8} value={f.password} onChange={set("password")} /></div>
           <Button type="submit" className="h-10 w-full" disabled={busy}>{busy ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}</Button>
           <p className="text-center text-sm text-muted-foreground">
             {mode === "login" ? "New to SellFlow?" : "Already have an account?"}{" "}

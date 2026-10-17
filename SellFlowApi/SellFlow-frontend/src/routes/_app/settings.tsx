@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { BellRing, Landmark, Truck, Store, Tag, X, CreditCard, Check, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -64,7 +65,6 @@ function SettingsPage() {
 
   if (!s) return <div className="h-96 animate-pulse rounded-xl bg-muted" />;
   const set = (patch: Partial<S>) => setS({ ...s, ...patch });
-  const num = (v: string) => (v === "" ? null : Number(v));
 
   return (
     <>
@@ -106,7 +106,7 @@ function SettingsPage() {
           <div className="flex items-center justify-between rounded-lg border p-3"><div><p className="text-sm font-semibold">Pay on delivery</p><p className="text-xs text-muted-foreground">You accept each order before it's prepared.</p></div><Switch checked={s.acceptPayOnDelivery} onCheckedChange={(v) => set({ acceptPayOnDelivery: v })} /></div>
           {s.acceptPayOnDelivery && (
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5"><Label>Max order value (₦)</Label><Input type="number" min={0} value={s.maxPodOrderValue ?? ""} onChange={(e) => set({ maxPodOrderValue: num(e.target.value) })} /></div>
+              <div className="space-y-1.5"><Label>Max order value (₦)</Label><NumberInput decimal placeholder="No limit" value={s.maxPodOrderValue} onValueChange={(v) => set({ maxPodOrderValue: v })} /></div>
               <div className="flex items-center justify-between gap-3 rounded-lg border p-3"><span className="text-sm">Returning customers only</span><Switch checked={s.podRequiresReturningCustomer} onCheckedChange={(v) => set({ podRequiresReturningCustomer: v })} /></div>
             </div>
           )}
@@ -114,7 +114,7 @@ function SettingsPage() {
         </Section>
 
         <Section icon={<Truck className="size-4" />} title="Delivery" desc="Flat fee added to every order. Use 0 for free delivery.">
-          <div className="max-w-xs space-y-1.5"><Label>Delivery fee (₦)</Label><Input type="number" min={0} value={s.deliveryFee ?? ""} onChange={(e) => set({ deliveryFee: num(e.target.value) })} /></div>
+          <div className="max-w-xs space-y-1.5"><Label>Delivery fee (₦)</Label><NumberInput decimal placeholder="0" value={s.deliveryFee} onValueChange={(v) => set({ deliveryFee: v })} /></div>
           <Button onClick={() => saveSettings.mutate()} disabled={saveSettings.isPending}>Save delivery</Button>
         </Section>
 

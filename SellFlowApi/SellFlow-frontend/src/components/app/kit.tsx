@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import type { Tone } from "@/lib/format";
@@ -67,4 +68,15 @@ export function Panel({ title, action, children, className }: { title?: string; 
       {children}
     </section>
   );
+}
+
+// A link in the real app, or a plain button when the page is embedded in the public demo.
+export function NavTo({ to, onGo, className, children }: {
+  to: "/orders" | "/products";
+  onGo?: ((to: "/orders" | "/products") => void) | undefined;
+  className?: string;
+  children: ReactNode;
+}) {
+  if (onGo) return <button type="button" onClick={() => onGo(to)} className={className}>{children}</button>;
+  return <Link to={to} className={className}>{children}</Link>;
 }

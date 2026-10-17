@@ -2,13 +2,19 @@ import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tan
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  LayoutDashboard, ShoppingBag, Package, Users, Wallet, Settings, LogOut, Menu, MessageCircle, FlaskConical,
+  LayoutDashboard, ShoppingBag, Package, Users, Wallet, Settings, LogOut, Menu, MessageCircle,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { api, isDemo, storage } from "@/lib/api";
+import { ServerError } from "@/components/app/ServerError";
+import { api, ApiError, storage } from "@/lib/api";
+import { useSetup } from "@/lib/setup";
 import { cn } from "@/lib/utils";
+import { noindex } from "@/lib/seo";
 
-export const Route = createFileRoute("/_app")({ component: AppLayout });
+export const Route = createFileRoute("/_app")({
+  component: AppLayout,
+  head: () => ({ meta: [noindex] }),
+});
 
 const nav = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -16,6 +22,7 @@ const nav = [
   { to: "/products", label: "Products", icon: Package },
   { to: "/customers", label: "Customers", icon: Users },
   { to: "/payments", label: "Payments", icon: Wallet },
+  { to: "/whatsapp", label: "WhatsApp", icon: MessageCircle },
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
@@ -49,17 +56,20 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }) {
               {to === "/orders" && toReview > 0 && (
                 <span className="ml-auto rounded-full bg-sidebar-primary px-2 text-xs font-bold text-sidebar-primary-foreground">{toReview}</span>
               )}
+              {to === "/whatsapp" && biz && !biz.whatsAppConnected && (
+                <span className="ml-auto rounded-full bg-warning px-2 text-xs font-bold text-warning-foreground">Connect</span>
+              )}
             </Link>
           );
         })}
       </nav>
-      <div className="m-3 rounded-lg border border-sidebar-border p-3 text-xs">
+      <Link to="/whatsapp" onClick={onNavigate} className="m-3 block rounded-lg border border-sidebar-border p-3 text-xs transition-colors hover:bg-sidebar-accent/60">
         <div className="flex items-center gap-2 font-semibold text-sidebar-accent-foreground">
           <span className={cn("size-2 rounded-full", biz?.whatsAppConnected ? "bg-sidebar-primary" : "bg-warning")} />
           {biz?.whatsAppConnected ? "WhatsApp connected" : "WhatsApp not connected"}
         </div>
-        <p className="mt-1 text-sidebar-foreground/70">{biz?.whatsAppNumber ?? "Contact support to link your number"}</p>
-      </div>
+        <p className="mt-1 text-sidebar-foreground/70">{biz?.whatsAppNumber ?? "Tap here to connect your number"}</p>
+      </Link>
       <button
         onClick={() => { storage.clear(); navigate({ to: "/login" }); }}
         className="mx-3 mb-4 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold hover:bg-sidebar-accent/60">
@@ -73,14 +83,23 @@ function AppLayout() {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
-  const [demo, setDemo] = useState(false);
+  const setup = useSetup(ready);
+  const expired = setup.error instanceof ApiError && setup.error.status === 401;
 
   useEffect(() => {
-    if (!isDemo() && !storage.token()) navigate({ to: "/login" });
-    else { setDemo(isDemo()); setReady(true); }
+    if (!storage.token()) navigate({ to: "/login" });
+    else setReady(true);
   }, [navigate]);
 
-  if (!ready) return <div className="min-h-screen bg-background" />;
+  // The dashboard only opens once setup is complete: business, then subscription, then WhatsApp.
+  useEffect(() => {
+    if (!ready) return;
+    if (expired) navigate({ to: "/login" });
+    else if (setup.step && setup.step !== "done") navigate({ to: "/setup" });
+  }, [ready, expired, setup.step, navigate]);
+
+  if (setup.error && !expired) return <ServerError message={setup.error.message} onRetry={setup.retry} />;
+  if (!ready || setup.step !== "done") return <div className="min-h-screen bg-background" />;
 
   return (
     <div className="min-h-screen bg-background lg:pl-64">
@@ -95,12 +114,6 @@ function AppLayout() {
         <button aria-label="Open menu" onClick={() => setOpen(true)} className="rounded-md p-1.5 hover:bg-muted"><Menu className="size-5" /></button>
         <span className="font-extrabold tracking-tight">SellFlow</span>
       </header>
-      {demo && (
-        <div className="flex items-center justify-center gap-2 border-b bg-accent px-4 py-2 text-center text-xs font-medium text-accent-foreground">
-          <FlaskConical className="size-3.5" /> Demo mode with sample data.
-          <Link to="/login" className="font-bold underline underline-offset-2">Connect your API</Link>
-        </div>
-      )}
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8"><Outlet /></main>
     </div>
   );
